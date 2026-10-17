@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tune Race</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f2ff;--fg:#1d1233;--card:#fff;--line:#d9cff2;--acc:#7c3aed;--ok:#16a34a;--bad:#dc2626;--mut:#6b5f86}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12091f;--fg:#f3edff;--card:#201233;--line:#3a2860;--acc:#a78bfa;--ok:#22c55e;--bad:#f87171;--mut:#a99bc9}}
+:root[data-theme="dark"]{--bg:#12091f;--fg:#f3edff;--card:#201233;--line:#3a2860;--acc:#a78bfa;--ok:#22c55e;--bad:#f87171;--mut:#a99bc9}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+#app{max-width:480px;margin:0 auto;padding:18px 16px 28px;min-height:100vh;display:flex;flex-direction:column;gap:14px}
+.top{display:flex;justify-content:space-between;font-weight:800}
+.top span:last-child{text-align:right}.mut{color:var(--mut);font-weight:600;font-size:14px}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+#fill{height:100%;width:100%;background:var(--acc);transition:width .1s linear}
+.time{text-align:center;font-size:38px;font-weight:800}
+.opts{display:grid;gap:10px}
+button{font:inherit;font-weight:700;font-size:16px;padding:14px;min-height:56px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--fg);text-align:left}
+button small{display:block;font-weight:500;color:inherit;opacity:.7;font-size:13px}
+button:active{transform:scale(.98)}
+button.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+button.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+button.main{background:var(--acc);border-color:var(--acc);color:#fff;text-align:center}
+.c{text-align:center}h1{font-size:38px;margin:28px 0 4px}.big{font-size:44px;font-weight:800}
+.fb{text-align:center;min-height:44px;font-weight:700}
+footer{margin-top:auto;text-align:center;font-size:12px;color:var(--mut)}
+</style></head><body>
+<div id="app"></div>
+<script>
+const CATS={
+'Afrobeats':['Burna Boy','Wizkid','Davido','Tems','Rema','Asake','Ayra Starr','Fireboy DML'],
+'Pop':['Dua Lipa','Ed Sheeran','The Weeknd','Ariana Grande','Bruno Mars','Rihanna','Adele','Billie Eilish'],
+'Hip-Hop':['Drake','Kendrick Lamar','Eminem','Nicki Minaj','Travis Scott','Cardi B','Jay-Z','Kanye West'],
+'Rock':['Queen','Coldplay','Imagine Dragons','Linkin Park','Nirvana','Metallica','AC/DC','Foo Fighters']};
+const ROUNDS=10,LIMIT=15,au=new Audio();
+let pool,r,me,rival,cur,done,t0,tick,rv;
+const $=id=>document.getElementById(id),app=$('app');
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function jsonp(url){return new Promise((res,rej)=>{const cb='cb'+Math.random().toString(36).slice(2),s=document.createElement('script');
+ const end=()=>{s.remove();delete window[cb]};window[cb]=d=>{end();res(d)};s.onerror=()=>{end();rej()};
+ s.src=url+'&output=jsonp&callback='+cb;document.head.appendChild(s);setTimeout(()=>{end();rej()},9000)})}
+function say(html){app.innerHTML=html+'<footer>Music previews provided by Deezer</footer>'}
+function home(msg){au.pause();clearInterval(tick);clearTimeout(rv);
+ say(`<div class="c"><h1>🎧 Tune Race</h1><p class="mut">${msg||'Name the song from its clip faster than your rival. Pick a category:'}</p></div><div class="opts" id="cats"></div>`);
+ Object.keys(CATS).forEach(k=>{const b=document.createElement('button');b.className='main';b.textContent=k;b.onclick=()=>load(k);$('cats').appendChild(b)})}
+async function load(cat){
+ au.src='data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAABhgC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAAYYoRwmHAAAAAAD/+xDEAAPAAAGkAAAAIAAANIAAAARMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';au.play().then(()=>au.pause()).catch(()=>{});
+ say('<div class="c"><h1>Loading…</h1><p class="mut">Fetching songs for '+cat+'</p></div>');
+ try{
+  const names=CATS[cat];
+  const rs=await Promise.allSettled(names.map(a=>jsonp('https://api.deezer.com/search?limit=25&q='+encodeURIComponent(a))));
+  const ok=rs.filter(x=>x.status==='fulfilled').length;
+  if(!ok)throw new Error('NET');
+  pool=[];const seen=new Set();
+  rs.forEach((x,i)=>{if(x.status!=='fulfilled')return;const n=names[i].toLowerCase();
+   (x.value.data||[]).forEach(t=>{if(!t.preview||!t.artist)return;const an=t.artist.name.toLowerCase();
+    if(!(an.includes(n)||n.includes(an)))return;const k=(t.title_short||t.title).toLowerCase();
+    if(seen.has(k))return;seen.add(k);pool.push({t:t.title_short||t.title,a:t.artist.name,p:t.preview})})});
+  if(pool.length<12)throw new Error('FEW:'+pool.length+' songs, '+ok+'/'+names.length+' searches answered');
+  r=0;me=0;rival=0;next();
+ }catch(e){const m=String(e.message||e);home(m==='NET'?'Couldn’t reach Deezer at all. This usually means the page is opened from a preview or local file that blocks outside sites, or Deezer is blocked on your network. Open it from your own hosted link (GitHub Pages / Netlify) and try mobile data or Wi-Fi.':'Deezer answered but had too few playable songs ('+m+'). Try another category.')}}
+function next(){
+ if(r>=ROUNDS){const w=me>rival?'You win! 🏆':me<rival?'Your rival wins.':'It’s a tie!';
+  say(`<div class="c"><h1>${w}</h1><p class="big">${me} – ${rival}</p><p class="mut">You vs Rival</p></div><button class="main" id="ag">Play again</button>`);$('ag').onclick=()=>home();return}
+ const i=Math.floor(Math.random()*pool.length);cur=pool[i];done=false;
+ const others=shuffle(pool.filter(x=>x.t!==cur.t&&x.a!==cur.a)).slice(0,3),opts=shuffle([cur,...others]);
+ say(`<div class="top"><span>You ${me}</span><span class="mut">Round ${r+1}/${ROUNDS}</span><span>${rival} Rival</span></div>
+ <div class="bar"><div id="fill"></div></div><div class="time" id="tm">${LIMIT}</div>
+ <button class="main" id="rp">▶ Replay clip</button><div class="opts" id="ops"></div><div class="fb" id="fb"></div>`);
+ opts.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;const s=document.createElement('small');s.textContent=o.a;b.appendChild(s);
+  b.onclick=()=>pick(o,b);b._o=o;$('ops').appendChild(b)});
+ $('rp').onclick=()=>{au.currentTime=0;au.play()};
+ au.src=cur.p;au.play().catch(()=>{$('fb').textContent='Tap Replay to hear the clip'});
+ t0=performance.now();clearInterval(tick);
+ tick=setInterval(()=>{const l=Math.max(0,LIMIT-(performance.now()-t0)/1000);$('tm').textContent=Math.ceil(l);$('fill').style.width=l/LIMIT*100+'%';if(l<=0)pick(null)},100)}
+function pick(o,btn){if(done)return;done=true;clearInterval(tick);au.pause();
+ const l=Math.max(0,LIMIT-(performance.now()-t0)/1000);
+ [...$('ops').children].forEach(b=>{if(b._o===cur)b.classList.add('ok')});
+ let m='';
+ if(o===cur){const p=100+Math.round(l*10);me+=p;m='Correct! +'+p}
+ else{if(btn)btn.classList.add('bad');m=o?'Wrong answer.':'Time’s up!'}
+ const rc=Math.random()<.65,rt=2+Math.random()*9;
+ if(rc){const p=100+Math.round((LIMIT-rt)*10);rival+=p;m+=` · Rival got it in ${rt.toFixed(1)}s (+${p})`}else m+=' · Rival missed it';
+ $('fb').textContent=m;
+ rv=setTimeout(()=>{r++;next()},2400)}
+home();
+</script></body></html>
