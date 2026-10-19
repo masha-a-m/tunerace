@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b10">
+<title>Tune Race</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b10;--sf:#14141c;--sf2:#1b1b26;--ln:#2a2a36;--gold:#d4af6a;--tx:#f2efe8;--mu:#8d8a96;--ok:#4ade80;--bad:#f87171;color-scheme:dark;
+--serif:"Playfair Display",Georgia,"Times New Roman",serif;--sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--sans)}
+body{background:radial-gradient(900px 500px at 50% -10%,#2a1f0c 0%,transparent 60%),var(--bg);min-height:100vh}
+#app{max-width:520px;margin:0 auto;padding:max(22px,env(safe-area-inset-top)) 18px max(32px,env(safe-area-inset-bottom));min-height:100vh;display:flex;flex-direction:column;gap:18px}
+.hero{text-align:center;padding:18px 0 4px}
+.mark{width:54px;height:54px;margin:0 auto 12px;border-radius:50%;border:1px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-size:24px}
+h1{font-family:var(--serif);font-size:44px;margin:0;letter-spacing:.5px;font-weight:700}h1 em{color:var(--gold);font-style:italic}
+.tag{color:var(--mu);margin:8px 0 0;font-size:15px}
+h2{font-family:var(--serif);font-size:20px;margin:6px 0 10px;font-weight:600}
+h2 span{display:block;font-family:var(--sans);font-size:12px;color:var(--mu);font-weight:500;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.chips{display:flex;gap:8px;justify-content:center}
+.chip{flex:1;padding:11px 6px;border-radius:12px;border:1px solid var(--ln);background:var(--sf);color:var(--mu);font:600 13px var(--sans);text-align:center}
+.chip small{display:block;font-weight:500;opacity:.8;margin-top:2px}
+.chip.on{border-color:var(--gold);color:var(--gold);background:#1d1810}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{position:relative;overflow:hidden;text-align:left;border:1px solid var(--ln);border-radius:16px;padding:16px 14px;min-height:104px;color:var(--tx);font-family:var(--sans);display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer}
+.card b{font-family:var(--serif);font-size:18px;font-weight:600}.card small{color:#ffffffa8;font-size:12px;margin-top:3px;line-height:1.3}
+.card i{position:absolute;top:10px;right:12px;font-style:normal;font-size:11px;color:var(--gold);font-weight:600}
+.card:active,.btn:active,.opt:active{transform:scale(.98)}
+.feat{grid-column:1/-1;min-height:92px;border-color:#5a4720}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.x{width:38px;height:38px;border-radius:50%;border:1px solid var(--ln);background:var(--sf);color:var(--mu);font-size:16px}
+.sc{display:flex;gap:14px;font-weight:700;font-size:15px}.sc span{color:var(--mu);font-weight:500;font-size:12px;display:block;letter-spacing:1px;text-transform:uppercase}
+.sc div:last-child{text-align:right}
+.seg{display:flex;gap:4px}.seg i{flex:1;height:3px;border-radius:2px;background:var(--ln)}.seg i.d{background:var(--gold)}.seg i.n{background:#7a6334}
+.stage{text-align:center;padding:6px 0}
+.ring{position:relative;width:112px;height:112px;margin:0 auto}
+.ring svg{transform:rotate(-90deg)}.ring circle{fill:none;stroke-width:5}
+.ring .b{stroke:var(--ln)}.ring .f{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset .1s linear}
+.ring div{position:absolute;inset:0;display:grid;place-items:center;font:700 34px var(--serif)}
+.eq{display:flex;gap:4px;justify-content:center;align-items:flex-end;height:26px;margin:14px 0 6px}
+.eq i{width:4px;background:var(--gold);border-radius:2px;animation:b .7s infinite ease-in-out alternate}
+.eq i:nth-child(2n){animation-delay:.2s}.eq i:nth-child(3n){animation-delay:.4s}.eq i:nth-child(5n){animation-delay:.1s}
+.eq.off i{animation:none;height:4px}
+@keyframes b{from{height:4px}to{height:26px}}
+.q{color:var(--mu);font-size:14px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;min-height:62px;border-radius:14px;border:1px solid var(--ln);background:var(--sf);color:var(--tx);font:600 16px var(--sans)}
+.opt u{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--ln);display:grid;place-items:center;font:600 12px var(--sans);color:var(--mu);text-decoration:none}
+.opt small{display:block;color:var(--mu);font-weight:500;font-size:13px;margin-top:1px}
+.opt.ok{background:#12301f;border-color:var(--ok)}.opt.ok u{background:var(--ok);color:#06210f;border-color:var(--ok)}
+.opt.bad{background:#341616;border-color:var(--bad)}.opt.bad u{background:var(--bad);color:#2a0909;border-color:var(--bad)}
+.fb{min-height:40px;text-align:center;font-weight:600;font-size:14px;color:var(--gold)}
+.btn{width:100%;padding:15px;border-radius:14px;border:1px solid var(--gold);background:var(--gold);color:#1a1405;font:700 16px var(--sans)}
+.btn.g{background:transparent;color:var(--gold)}
+.res{text-align:center}.res h1{font-size:36px;margin:8px 0}
+.vs{display:flex;gap:10px;margin:16px 0}.vs div{flex:1;background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:14px}
+.vs b{display:block;font:700 32px var(--serif)}.vs span{font-size:12px;color:var(--mu);letter-spacing:1px;text-transform:uppercase}
+.vs .w{border-color:var(--gold)}
+.rec{text-align:left;background:var(--sf);border:1px solid var(--ln);border-radius:14px;overflow:hidden}
+.rec div{display:flex;gap:10px;padding:11px 14px;border-bottom:1px solid var(--ln);font-size:14px}.rec div:last-child{border:0}
+.rec em{font-style:normal;flex:none}.rec small{color:var(--mu);display:block}
+.spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--ln);border-top-color:var(--gold);margin:30px auto 14px;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+footer{margin-top:auto;text-align:center;font-size:11px;color:var(--mu);padding-top:10px}
+#sp{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;background:radial-gradient(700px 500px at 50% 35%,#3a2a0e 0%,transparent 65%),var(--bg);transition:opacity .6s ease,visibility .6s}
+#sp.out{opacity:0;visibility:hidden}
+#sp .mark{width:84px;height:84px;font-size:38px;animation:pop .9s cubic-bezier(.2,.9,.3,1.3) both}
+#sp h1{font-size:58px;animation:up .8s .35s both}
+#sp .tag{animation:up .8s .6s both}
+#sp .eq{height:30px;margin-top:34px;animation:up .8s .85s both}#sp .eq i{width:5px}
+#sp small{position:absolute;bottom:max(28px,env(safe-area-inset-bottom));color:var(--mu);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;animation:up .8s 1.2s both}
+.av{width:40px;height:40px;border-radius:50%;border:1px solid var(--gold);background:#1d1810;color:var(--gold);font:600 16px var(--serif)}
+.mu{color:var(--mu);font-size:14px}
+.row{display:flex;gap:10px;overflow-x:auto;margin:0 -18px;padding:0 18px 4px;scrollbar-width:none}.row::-webkit-scrollbar{display:none}
+.row .card{flex:none;width:152px;min-height:112px}
+.inp{width:100%;padding:16px;border-radius:14px;border:1px solid var(--ln);background:var(--sf);color:var(--tx);font:600 18px var(--sans);text-align:center;outline:none}.inp:focus{border-color:var(--gold)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes up{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){#sp *{animation:none!important}}
+</style></head><body>
+<div id="app"></div>
+<div id="sp"><div class="mark">♪</div><h1>Tune<em>Race</em></h1><p class="tag">Name the song. Beat the clock.</p><div class="eq"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>Tap to start</small></div>
+<script>
+const G=[
+{g:'Naija & Africa',s:'Home sound',items:[
+ {k:'Afrobeats',e:'🔥',c:'#3a2606',a:['Burna Boy','Wizkid','Davido','Tems','Rema','Asake','Ayra Starr','Fireboy DML','Omah Lay','Kizz Daniel']},
+ {k:'Naija Classics',e:'🇳🇬',c:'#0d2e1c',a:['2Baba','P-Square','D’banj','Flavour','Timaya','Wande Coal','Banky W','Olamide']},
+ {k:'Amapiano & SA',e:'🥁',c:'#2b1236',a:['Tyla','Kabza De Small','DJ Maphorisa','Uncle Waffles','Major League DJz','Focalistic','Black Coffee','Musa Keys']},
+ {k:'Hausa',e:'🌅',c:'#2e2410',a:['Ali Jita','Rarara','Classiq','Morell','Umar M Shariff','Hamisu Breaker','Nura M Inuwa','Garzali Miko','Adam A Zango','Mansura Isah']}]},
+{g:'Worldwide',s:'Global hits',items:[
+ {k:'Pop',e:'✨',c:'#38122a',a:['Dua Lipa','Ed Sheeran','The Weeknd','Ariana Grande','Bruno Mars','Rihanna','Adele','Billie Eilish']},
+ {k:'Hip-Hop',e:'🎤',c:'#2a2410',a:['Drake','Kendrick Lamar','Eminem','Nicki Minaj','Travis Scott','Cardi B','Jay-Z','Kanye West']},
+ {k:'R&B',e:'🌙',c:'#1c1a3a',a:['Beyoncé','Usher','Alicia Keys','SZA','Chris Brown','Mary J. Blige','Summer Walker','Brent Faiyaz']},
+ {k:'Rock',e:'🎸',c:'#2e1212',a:['Queen','Coldplay','Imagine Dragons','Linkin Park','Nirvana','Metallica','AC/DC','Foo Fighters']},
+ {k:'Latin',e:'💃',c:'#3a1b0b',a:['Bad Bunny','Shakira','J Balvin','Karol G','Daddy Yankee','Ozuna','Maluma','Rosalía']},
+ {k:'Throwbacks',e:'📼',c:'#14303a',a:['Michael Jackson','Whitney Houston','Backstreet Boys','Britney Spears','Destiny’s Child','Celine Dion','Mariah Carey','Boyz II Men']}]}];
+const PAL=['#3a2606','#38122a','#1c1a3a','#0d2e1c','#2e1212','#14303a','#2b1236','#2a2410'];
+const SP=[{g:'Global Stars',s:'Artist spotlight',l:[['Britney Spears','Top Hits'],['Justin Bieber','Best of'],['Ariana Grande','The Best of the Best'],['Christina Aguilera','Top Hits'],['Rihanna','Top Hits'],['Taylor Swift','Best of'],['Beyoncé','Best of'],['Michael Jackson','Best of'],['Whitney Houston','Top Hits'],['Bruno Mars','Top Hits'],['The Weeknd','Top Hits'],['Adele','Top Hits'],['Ed Sheeran','Best of'],['Shakira','Top Hits'],['Katy Perry','Top Hits'],['Lady Gaga','Top Hits'],['Selena Gomez','Best of'],['Drake','Top Hits'],['Eminem','Best of'],['Dua Lipa','Top Hits']]},
+{g:'Naija Stars',s:'Artist spotlight',l:[['Burna Boy','Best of'],['Wizkid','Best of'],['Davido','Best of'],['Tems','Top Hits'],['Rema','Top Hits'],['Asake','Top Hits'],['Ayra Starr','Top Hits'],['Fireboy DML','Best of'],['Omah Lay','Top Hits'],['Kizz Daniel','Best of']]}];
+const SPOT=SP.flatMap(x=>x.l.map(([n,t])=>({k:n+': '+t,n})));
+const ALL=G.flatMap(x=>x.items),MODES={Relaxed:[20,.5],Classic:[15,.65],Blitz:[8,.8]},ROUNDS=10;
+const au=new Audio(),cache={},$=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const nm=()=>ls.get('tr_name')||'Player';
+const norm=x=>String(x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+const stats=()=>{try{return Object.assign({games:0,wins:0,played:0,correct:0,best:0},JSON.parse(ls.get('tr_stats')||'{}'))}catch(e){return{games:0,wins:0,played:0,correct:0,best:0}}};
+const addStats=(w,h)=>{const t=stats();t.games++;if(w)t.wins++;t.played+=ROUNDS;t.correct+=h;t.best=Math.max(t.best,mx);ls.set('tr_stats',JSON.stringify(t))};
+let deck=[],single=0,mx=0,pre,up,fails=0,wd,started,mode=ls.get('tr_mode')||'Classic',cat,pool,r,me,rv,cur,done,t0,tick,nt,rec,streak,LIM;
+const root=document.getElementById('app');
+const view=h=>{root.innerHTML=h+'<footer>Music previews provided by Deezer</footer>'};
+function askName(first){au.pause();
+ view(`<div class="hero"><div class="mark">♪</div><h1 style="font-size:32px">${first?'Welcome':'Your name'}</h1><p class="tag">${first?'What should we call you?':'Change how you appear in games.'}</p></div>
+ <input id="ni" class="inp" maxlength="14" placeholder="Your nickname" autocomplete="off" value="${first?'':esc(ls.get('tr_name')||'')}">
+ <button class="btn" id="ok">${first?'Let’s play':'Save'}</button>${first?'<button class="btn g" id="sk">Skip for now</button>':''}`);
+ const go=v=>{v=(v||'').trim().slice(0,14);if(v)ls.set('tr_name',v);else if(first)ls.set('tr_name','Player');first?home():profile()};
+ $('ok').onclick=()=>go($('ni').value);$('ni').onkeydown=e=>{if(e.key==='Enter')go($('ni').value)};
+ if($('sk'))$('sk').onclick=()=>go('')}
+function profile(){au.pause();const t=stats(),acc=t.played?Math.round(t.correct/t.played*100):0,wr=t.games?Math.round(t.wins/t.games*100):0;
+ const box=(v,l)=>`<div style="flex:1 1 40%"><b>${v}</b><span>${l}</span></div>`;
+ view(`<div class="top"><button class="x" id="bk">←</button><span class="mu">Profile</span><span style="width:38px"></span></div>
+ <div class="hero"><div class="mark" style="font-family:var(--serif)">${esc(Array.from(nm())[0].toUpperCase())}</div><h1 style="font-size:32px">${esc(nm())}</h1></div>
+ <div class="vs" style="flex-wrap:wrap">${box(t.games,'Games')}${box(t.wins,'Wins')}${box(wr+'%','Win rate')}${box(t.correct,'Songs named')}${box(acc+'%','Accuracy')}${box(t.best,'Best streak')}</div>
+ <button class="btn" id="cn">Change name</button><button class="btn g" id="rs">Reset my stats</button>`);
+ $('bk').onclick=()=>home();$('cn').onclick=()=>askName(0);
+ $('rs').onclick=()=>{if(confirm('Reset all your stats and best scores?')){try{Object.keys(localStorage).filter(k=>k.startsWith('tr_best_')||k==='tr_stats').forEach(k=>localStorage.removeItem(k))}catch(e){}profile()}}}
+function jsonp(u){return new Promise((res,rej)=>{const cb='cb'+Math.random().toString(36).slice(2),s=document.createElement('script');
+ const end=()=>{s.remove();delete window[cb]};window[cb]=d=>{end();res(d)};s.onerror=()=>{end();rej()};
+ s.src=u+'&output=jsonp&callback='+cb;document.head.appendChild(s);setTimeout(()=>{end();rej()},9000)})}
+const api=u=>fetch(u).then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>jsonp(u));
+function home(msg){au.pause();clearInterval(tick);clearTimeout(nt);
+ let h=`<div class="top"><span class="mu">Hi, ${esc(nm())}</span><button class="av" id="pf">${esc(Array.from(nm())[0].toUpperCase())}</button></div><div class="hero"><div class="mark">♪</div><h1>Tune<em>Race</em></h1><p class="tag">Name the song. Beat the clock. Outrun your rival.</p></div>
+ ${msg?`<p class="fb" style="color:var(--bad)">${esc(msg)}</p>`:''}
+ <div class="chips">${Object.keys(MODES).map(m=>`<button class="chip ${m===mode?'on':''}" data-m="${m}">${m}<small>${MODES[m][0]}s per song</small></button>`).join('')}</div>
+ <div class="grid"><button class="card feat" data-k="Mix" style="background:linear-gradient(120deg,#4a3410,#14141c)"><b>Mix It Up</b><small>Random artists from every section</small><i>${ls.get('tr_best_Mix')?'BEST '+ls.get('tr_best_Mix'):'★'}</i></button></div>`;
+ G.forEach(s=>{h+=`<div><h2><span>${esc(s.s)}</span>${esc(s.g)}</h2><div class="grid">${s.items.map(c=>{const b=ls.get('tr_best_'+c.k);
+  return `<button class="card" data-k="${esc(c.k)}" style="background:linear-gradient(160deg,${c.c},#101018)"><i>${b?'BEST '+b:c.e}</i><b>${esc(c.k)}</b><small>${esc(c.a.slice(0,3).join(', '))}…</small></button>`}).join('')}</div></div>`});
+ SP.forEach((g,gi)=>{h+=`<div><h2><span>${esc(g.s)}</span>${esc(g.g)}</h2><div class="row">${g.l.map(([n,t],i)=>{const k=n+': '+t,b=ls.get('tr_best_'+k);
+  return `<button class="card" data-k="${esc(k)}" style="background:linear-gradient(160deg,${PAL[(i+gi*3)%8]},#101018)"><i>${b?'BEST '+b:'★'}</i><b>${esc(n)}</b><small>${esc(t)}</small></button>`}).join('')}</div></div>`});
+ view(h);$('pf').onclick=profile;
+ root.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{mode=b.dataset.m;ls.set('tr_mode',mode);home(msg)});
+ root.querySelectorAll('.card').forEach(b=>b.onclick=()=>load(b.dataset.k))}
+async function load(k){cat=k;
+ au.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=';au.play().then(()=>au.pause()).catch(()=>{});
+ view(`<div class="hero"><div class="spin"></div><h2 style="text-align:center">Finding songs…</h2><p class="tag">${esc(k)}</p></div>`);
+ try{
+  if(!cache[k]){
+   const sp=SPOT.find(x=>x.k===k),names=sp?[sp.n]:k==='Mix'?sh(ALL.flatMap(c=>c.a)).slice(0,14):ALL.find(c=>c.k===k).a;
+   const rs=await Promise.allSettled(names.map(a=>api('https://api.deezer.com/search?limit='+(sp?60:30)+'&q='+encodeURIComponent('artist:"'+a.replace(/’/g,"'")+'"'))));
+   const ok=rs.filter(x=>x.status==='fulfilled').length;if(!ok)throw new Error('NET');
+   const p=[],seen=new Set();
+   rs.forEach((x,i)=>{if(x.status!=='fulfilled')return;const n=norm(names[i]);
+    (x.value.data||[]).forEach(t=>{if(!t.preview||!t.artist||norm(t.artist.name)!==n)return;const key=norm(t.title_short||t.title);
+     if(seen.has(key))return;seen.add(key);p.push({t:t.title_short||t.title,a:t.artist.name,p:t.preview})})});
+   if(p.length<12)throw new Error('FEW');cache[k]=p}
+  single=SPOT.some(x=>x.k===k)?1:0;pool=cache[k];deck=[];r=0;mx=0;me=0;rv=0;rec=[];streak=0;LIM=MODES[mode][0];next()
+ }catch(e){home(e.message==='NET'?'Couldn’t reach Deezer. Check your connection and try again.':'Not enough playable songs found here. Try another section.')}}
+function next(){
+ if(r>=ROUNDS)return finish();
+ if(deck.length<2)deck=sh(pool.slice());cur=deck.pop();up=deck[deck.length-1];done=false;
+ const o=sh([cur,...sh(pool.filter(x=>x.t!==cur.t&&(single||x.a!==cur.a))).slice(0,3)]);
+ view(`<div class="top"><button class="x" id="qt">✕</button><div class="sc"><div><span>${esc(nm().slice(0,10))}</span>${me}</div><div><span>Rival</span>${rv}</div></div></div>
+ <div class="seg">${Array.from({length:ROUNDS},(_,i)=>`<i class="${i<r?(rec[i]&&rec[i].ok?'d':'n'):''}"></i>`).join('')}</div>
+ <div class="stage"><div class="ring"><svg width="112" height="112" viewBox="0 0 112 112"><circle class="b" cx="56" cy="56" r="50"/><circle class="f" id="rg" cx="56" cy="56" r="50" stroke-dasharray="314.16" stroke-dashoffset="0"/></svg><div id="tm">${LIM}</div></div>
+ <div class="eq" id="eq">${'<i></i>'.repeat(14)}</div><div class="q" id="qq">Which song is playing?</div></div>
+ <div class="opts" id="ops"></div><div class="fb" id="fb"></div>`);
+ o.forEach((x,i)=>{const b=document.createElement('button');b.className='opt';b._o=x;
+  b.innerHTML=`<u>${'ABCD'[i]}</u><span>${esc(x.t)}${single?'':`<small>${esc(x.a)}</small>`}</span>`;b.onclick=()=>pick(x,b);$('ops').appendChild(b)});
+ $('qt').onclick=()=>{if(confirm('Quit this game?'))home()};
+ $('eq').classList.add('off');$('qq').textContent='Loading clip…';
+ beginClip()}
+function beginClip(){clearInterval(tick);clearTimeout(wd);started=false;const my=cur;
+ const go=()=>{if(started||cur!==my||done||!$('eq'))return;started=true;clearTimeout(wd);fails=0;
+  $('eq').classList.remove('off');$('qq').textContent='Which song is playing?';
+  t0=performance.now();clearInterval(tick);
+  tick=setInterval(()=>{const l=Math.max(0,LIM-(performance.now()-t0)/1000);$('tm').textContent=Math.ceil(l);
+   $('rg').style.strokeDashoffset=314.16*(1-l/LIM);if(l<=0)pick(null)},100);
+  try{(pre=pre||new Audio()).preload='auto';pre.src=up.p}catch(e){}};
+ const bad=()=>{if(started||cur!==my||done)return;clearTimeout(wd);
+  if(++fails>=4){home('Songs are loading too slowly. Check your connection and try again.');return}next()};
+ au.onplaying=go;au.onerror=bad;wd=setTimeout(bad,9000);
+ au.src=cur.p;au.load();
+ const pr=au.play();
+ if(pr&&pr.catch)pr.catch(e=>{if(e&&e.name==='NotAllowedError'&&cur===my&&!started&&$('qq')){clearTimeout(wd);
+  $('qq').innerHTML='<button class="btn" id="tp" style="width:auto;padding:10px 22px">▶ Tap to play</button>';$('tp').onclick=()=>au.play()}})}
+function pick(x,btn){if(done)return;done=true;clearInterval(tick);au.pause();$('eq').classList.add('off');
+ const l=Math.max(0,LIM-(performance.now()-t0)/1000);
+ [...$('ops').children].forEach(b=>{if(b._o===cur)b.classList.add('ok')});
+ let m;const ok=x===cur;
+ if(ok){streak++;mx=Math.max(mx,streak);const p=100+Math.round(l/LIM*150)+(streak>1?streak*10:0);me+=p;m='Correct  +'+p+(streak>1?'  ·  '+streak+' in a row 🔥':'')}
+ else{streak=0;if(btn)btn.classList.add('bad');m=x?'Not quite':'Time’s up'}
+ const [,pc]=MODES[mode],rc=Math.random()<pc,rt=2+Math.random()*(LIM*.65);
+ if(rc){const p=100+Math.round((LIM-rt)/LIM*150);rv+=p;m+='  ·  Rival +'+p}else m+='  ·  Rival missed';
+ $('fb').textContent=m;rec.push({t:cur.t,a:cur.a,ok});
+ nt=setTimeout(()=>{r++;next()},2300)}
+function finish(){const w=me>rv,t=me===rv,k='tr_best_'+cat,pb=+ls.get(k)||0,nb=me>pb;if(nb)ls.set(k,me);
+ const hits=rec.filter(x=>x.ok).length;addStats(w,hits);
+ view(`<div class="res"><div class="hero"><div class="mark">${w?'♛':t?'＝':'♪'}</div></div>
+ <h1>${w?'You win':t?'It’s a tie':'Rival wins'}</h1><p class="tag">${hits}/${ROUNDS} songs named · ${esc(cat)} · ${mode}${nb?' · New best!':''}</p>
+ <div class="vs"><div class="${w?'w':''}"><b>${me}</b><span>${esc(nm().slice(0,10))}</span></div><div class="${!w&&!t?'w':''}"><b>${rv}</b><span>Rival</span></div></div>
+ <button class="btn" id="ag">Play again</button><div style="height:10px"></div><button class="btn g" id="hm">Choose another section</button>
+ <h2 style="text-align:left;margin-top:22px"><span>Recap</span>This round’s songs</h2>
+ <div class="rec">${rec.map(x=>`<div><em>${x.ok?'✅':'❌'}</em><span>${esc(x.t)}<small>${esc(x.a)}</small></span></div>`).join('')}</div></div>`);
+ $('ag').onclick=()=>load(cat);$('hm').onclick=()=>home()}
+ls.get('tr_name')?home():askName(1);
+const sp=document.getElementById('sp');let spDone=false;
+function hideSp(){if(spDone)return;spDone=true;sp.classList.add('out');setTimeout(()=>sp.remove(),700)}
+sp.onclick=hideSp;setTimeout(hideSp,3000);
+</script></body></html>
